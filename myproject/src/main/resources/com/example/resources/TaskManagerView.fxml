@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Pos?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.example.frontend.TaskController"
+           style="-fx-padding: 10;">
+
+    <!-- ========== MAIN LAYOUT ========== -->
+    <VBox spacing="10">
+
+        <!-- Top row: Filters and Navigation -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <!-- Filters -->
+            <Label text="Filter by Category:" />
+            <ChoiceBox fx:id="categoryChoiceBoxMain" />
+            <Label text="Filter by Priority:" />
+            <ChoiceBox fx:id="priorityChoiceBoxMain" />
+            <Label text="Filter by Title:" />
+            <TextField fx:id="titleFilterField" promptText="Enter title..." />
+            <Button text="Apply Filters" onAction="#handleFilters" />
+
+            <!-- Navigation -->
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Notifications" onAction="#goToNotifications" />
+
+                        <!-- Notification Indicator -->
+            <Label fx:id="notificationIndicator" text="!" 
+                style="-fx-text-fill: red; -fx-font-size: 18pt;" 
+                visible="false" />
+            <Button text="Manage Categories" onAction="#openManageCategoriesOverlay" />
+        </HBox>
+
+        <!-- ScrollPane for tasks -->
+        <ScrollPane fitToWidth="true">
+            <VBox fx:id="taskContainer" spacing="10" style="-fx-padding: 10;">
+                <!-- Dynamically populated tasks go here -->
+            </VBox>
+        </ScrollPane>
+
+        <!-- Button to open Add Task overlay -->
+        <Button text="Add Task" onAction="#openAddTaskOverlay" />
+    </VBox>
+
+    <!-- ========== MANAGE CATEGORIES & PRIORITIES OVERLAY ========== -->
+    <StackPane fx:id="manageCategoriesOverlayPane"
+               visible="false"
+               style="-fx-background-color: rgba(0, 0, 0, 0.5);">
+
+        <VBox alignment="CENTER" spacing="15"
+              style="-fx-background-color: white; -fx-padding: 20; -fx-max-height: 80vh; -fx-max-width: 500;">
+
+            <!-- Manage Categories Section -->
+            <Label text="Manage Categories" style="-fx-font-size: 14pt;" />
+            <ListView fx:id="categoriesListView" prefHeight="150" />
+            <TextField fx:id="newCategoryField" promptText="New Category Name" />
+            <Button text="Add Category" onAction="#handleAddCategory" />
+
+            <!-- Manage Priorities Section -->
+            <Label text="Manage Priorities" style="-fx-font-size: 14pt;" />
+            <ListView fx:id="prioritiesListView" prefHeight="150" />
+            <TextField fx:id="newpriorityField" promptText="New Priority Name" />
+            <Button text="Add Priority" onAction="#handleAddPriority" />
+
+            <!-- Close Button -->
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="Close" onAction="#closeManageCategoriesOverlay" />
+            </HBox>
+        </VBox>
+    </StackPane>
+
+    <!-- ========== ADD TASK OVERLAY ========== -->
+    <StackPane fx:id="overlayPane"
+               visible="false"
+               style="-fx-background-color: rgba(0, 0, 0, 0.5);">
+
+        <VBox alignment="CENTER" spacing="15"
+              style="-fx-background-color: white; -fx-padding: 20; -fx-max-height: 80vh; -fx-max-width: 500;">
+
+            <!-- Title for the overlay -->
+            <Label text="Add a New Task" style="-fx-font-size: 14pt;" />
+
+            <!-- Task Form Fields -->
+            <TextField fx:id="taskTitleField" promptText="Task Title" />
+            <TextArea fx:id="taskDescriptionField" promptText="Task Description" />
+            <DatePicker fx:id="taskDeadlinePicker" promptText="Deadline" />
+
+            <Label text="Task Priority:" />
+            <ComboBox fx:id="PriorityChoiceBox" />
+
+            <Label text="Task Category:" />
+            <ComboBox fx:id="categoryChoiceBox" />
+
+            <!-- Buttons to add or cancel -->
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="Add Task" onAction="#submitTaskForm" />
+                <Button text="Cancel" onAction="#closeOverlay" />
+            </HBox>
+        </VBox>
+    </StackPane>
+
+        <!-- ========== NOTIFICATION OVERLAY ========== -->
+    <StackPane fx:id="notificationOverlayPane"
+            visible="false"
+            style="-fx-background-color: rgba(0, 0, 0, 0.5);">
+        <VBox alignment="CENTER" spacing="15"
+            style="-fx-background-color: white; -fx-padding: 20; -fx-max-height: 80vh; -fx-max-width: 500;">
+            <Label text="Add Reminder" style="-fx-font-size: 14pt;" />
+            
+            <Label text="Reminder Type:" />
+            <ComboBox fx:id="reminderTypeChoiceBox" />
+            
+            <Label text="Custom Date (if applicable):" />
+            <DatePicker fx:id="customReminderDatePicker" />
+
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="Add Reminder" onAction="#handleAddReminderFromOverlay" />
+                <Button text="Cancel" onAction="#closeNotificationOverlay" />
+            </HBox>
+        </VBox>
+    </StackPane>
+
+</StackPane>
