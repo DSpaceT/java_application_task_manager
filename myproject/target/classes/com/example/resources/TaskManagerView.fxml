@@ -9,8 +9,16 @@
            fx:controller="com.example.frontend.TaskController"
            style="-fx-padding: 10;">
 
+
     <!-- ========== MAIN LAYOUT ========== -->
     <VBox spacing="10">
+            <!-- ================== Task Summary Section ================== -->
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <Label fx:id="lblTotalTasks" text="Total tasks: 0" />
+            <Label fx:id="lblCompletedTasks" text="Completed: 0" />
+            <Label fx:id="lblDelayedTasks" text="Delayed: 0" />
+            <Label fx:id="lblDue7Days" text="Due in 7 days: 0" />
+        </HBox>
 
         <!-- Top row: Filters and Navigation -->
         <HBox spacing="10" alignment="CENTER_LEFT">

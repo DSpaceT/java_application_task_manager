@@ -1,5 +1,6 @@
 package com.example.backend;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,6 +61,43 @@ public class TaskUtils {
             }
         });
         return tasks;
+    }
+    public static List<Task> setTasksToDefaultPriority(List<Task> tasks, Priority oldPriority) {
+        tasks.forEach(task -> {
+            if (task.getPriority().equals(oldPriority)) {
+                task.setPriority(Priority.valueOf("DEFAULT"));
+            }
+        });
+        return tasks;
+    }
+
+    public static TaskSummary getTaskSummary(List<Task> tasks) {
+        int total = tasks.size();
+
+        int completedCount = (int) tasks.stream()
+                .filter(t -> t.getStatus() == Status.COMPLETED)
+                .count();
+
+        int delayedCount = (int) tasks.stream()
+                .filter(t -> t.getStatus() == Status.DELAYED)
+                .count();
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextWeek = now.plusDays(7);
+
+        int dueWithin7DaysCount = (int) tasks.stream()
+                .filter(t -> {
+                    LocalDateTime deadline = t.getDeadline();
+                    return !deadline.isBefore(now) && deadline.isBefore(nextWeek);
+                })
+                .count();
+
+        return new TaskSummary(
+            total,
+            completedCount,
+            delayedCount,
+            dueWithin7DaysCount
+        );
     }
     
 }

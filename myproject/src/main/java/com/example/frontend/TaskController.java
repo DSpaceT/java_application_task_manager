@@ -22,10 +22,12 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 import com.example.backend.Task;
 import com.example.backend.TaskLoader;
+import com.example.backend.TaskSummary;
 import com.example.backend.TaskUtils;
 import com.example.backend.Priority;
 import com.example.backend.Reminder;
@@ -85,6 +87,12 @@ public class TaskController {
     private Label notificationIndicator;
 
     private Timeline reminderChecker;
+
+    @FXML private Label lblTotalTasks;
+    @FXML private Label lblCompletedTasks;
+    @FXML private Label lblDelayedTasks;
+    @FXML private Label lblDue7Days;
+
     // ============================= Initialization =============================
     @FXML
     private void initialize() {
@@ -111,6 +119,18 @@ public class TaskController {
 
         updateTaskContainer(Categories.valueOf("All"),Priority.valueOf("ALL"),null);
     }
+
+    private void refreshTaskSummary() {
+        // 1) Get the summary
+        TaskSummary summary = TaskUtils.getTaskSummary(tasks);
+
+        // 2) Update the labels
+        lblTotalTasks.setText("Total tasks: " + summary.getTotalTasks());
+        lblCompletedTasks.setText("Completed: " + summary.getCompletedTasks());
+        lblDelayedTasks.setText("Delayed: " + summary.getDelayedTasks());
+        lblDue7Days.setText("Due in 7 days: " + summary.getDueWithin7Days());
+    }
+
     private void startReminderChecker() {
         reminderChecker = new Timeline(new KeyFrame(Duration.seconds(10), event -> checkForDueReminders()));
         reminderChecker.setCycleCount(Timeline.INDEFINITE);
@@ -325,10 +345,11 @@ public class TaskController {
                 removeButton.setOnAction(e -> {
                     Priority priority = getItem();
                     if (priority != null) {
-                        System.out.println("Removing priority: " + priority);
-                        removePriorityAndTasks(priority);
+                        System.out.println("Reassigning tasks from priority: " + priority + " to DEFAULT...");
+                        defaultPriorityAndTasks(priority); // <-- the new method you created
                     }
                 });
+                
             }
     
             @Override
@@ -375,38 +396,46 @@ public class TaskController {
             // Optionally, show an error dialog to the user
         }
     }
-    
-    
-    
-    private void removePriorityAndTasks(Priority priority) {
-        // Prevent removal of "DEFAULT"
+        
+    /**
+     * Reassigns tasks from the given priority to DEFAULT, 
+     * removes the priority from the internal list, 
+     * and refreshes the UI (but does NOT remove the tasks).
+     *
+     * @param priority the priority you want to reassign to DEFAULT
+     */
+    private void defaultPriorityAndTasks(Priority priority) {
+        // Prevent removing or reassigning DEFAULT itself
         if (priority == Priority.valueOf("DEFAULT")) {
-            System.out.println("Cannot remove the DEFAULT priority.");
+            System.out.println("Cannot reassign DEFAULT priority to itself.");
             return;
         }
-    
-        // Remove tasks that match the specified priority
-        tasks = TaskUtils.excludeTasks(tasks, null, priority);
 
-    
-        // 2) Remove the priority from the internal "fake enum"
+        // 1) Reassign all tasks having this priority to DEFAULT
+        tasks = TaskUtils.setTasksToDefaultPriority(tasks, priority);
+
+        // 2) Remove the old priority from the internal map/enum
         boolean removed = Priority.removePriority(priority.toString());
         if (removed) {
             System.out.println("Removed priority from the internal list: " + priority);
         }
-    
+
+        // 3) Refresh the prioritiesListView to exclude DEFAULT and ALL
         prioritiesListView.setItems(
             FXCollections.observableArrayList(Priority.values())
                 .filtered(p -> !p.equals(Priority.valueOf("DEFAULT")) && !p.equals(Priority.valueOf("ALL")))
         );
 
-        // 4) Update the UI (default to show "All" tasks)
-        updateTaskContainer(Categories.valueOf("All"), Priority.valueOf("ALL"), "");
+        // 4) Update UI with default filters
+        updateTaskContainer(Categories.valueOf("All"), Priority.valueOf("ALL"), null);
 
-    
-        // 5) Update the dropdowns
+        // 5) Update any priority dropdowns
         updatePriorityChoiceBoxes();
+
+        System.out.println("All tasks that had priority " + priority 
+            + " have now been reassigned to DEFAULT priority.");
     }
+
 
     private void removeCategoryAndTasks(Categories category) {
         tasks = TaskUtils.excludeTasks(tasks, category, null);
@@ -494,6 +523,7 @@ public class TaskController {
         for (Task task : filteredTasks) {
             addTask(task);
         }
+        refreshTaskSummary();
     }
 
     private void addTask(Task task) {
@@ -501,50 +531,89 @@ public class TaskController {
         taskContainer.getChildren().add(taskBox);
     }
 
+
     private HBox createTaskBox(Task task) {
         // Check if the deadline is in the past --> DELAYED
         LocalDateTime now = LocalDateTime.now();
         if (task.getDeadline().isBefore(now)) {
             task.setStatus(Status.DELAYED);
         }
-    
+
         // Create the container for the task box
-        HBox taskBox = new HBox(20); // Add spacing between the details and buttons
+        HBox taskBox = new HBox(20); // Spacing between details and buttons
         taskBox.setAlignment(Pos.CENTER_LEFT);
-        taskBox.setStyle("-fx-padding: 10; -fx-border-color: lightgray; -fx-border-width: 1; -fx-background-color: #f9f9f9;");
-    
-        // Task details
+        taskBox.setStyle("-fx-padding: 10; -fx-border-color: lightgray;"
+            + " -fx-border-width: 1; -fx-background-color: #f9f9f9;");
+
+        // Task details (left side)
         Label titleLabel = new Label("Title: " + task.getTitle());
-    
         Label descriptionLabel = new Label("Description: " + task.getDescription());
         descriptionLabel.setWrapText(true);
-        descriptionLabel.setMaxWidth(300); // Set a max width for wrapping
-    
-        Label deadlineLabel = new Label("Deadline: " + task.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        descriptionLabel.setMaxWidth(300);
+
+        Label deadlineLabel = new Label(
+            "Deadline: " + task.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+        );
         Label priorityLabel = new Label("Priority: " + task.getPriority());
         Label categoryLabel = new Label("Category: " + task.getCategory());
         Label statusLabel = new Label("Status: " + task.getStatus());
-    
-        VBox detailsBox = new VBox(5, titleLabel, descriptionLabel, deadlineLabel, priorityLabel, categoryLabel, statusLabel);
-        detailsBox.setAlignment(Pos.TOP_LEFT); // Align details to the top left
+
+        VBox detailsBox = new VBox(5, titleLabel, descriptionLabel, deadlineLabel,
+                                priorityLabel, categoryLabel, statusLabel);
+        detailsBox.setAlignment(Pos.TOP_LEFT);
         taskBox.getChildren().add(detailsBox);
-    
-        // Buttons container (with fixed alignment)
-        HBox buttonsBox = new HBox(10); // Add horizontal spacing between buttons
+
+        // Buttons container (right side)
+        HBox buttonsBox = new HBox(10); // Spacing between buttons
         buttonsBox.setAlignment(Pos.CENTER_LEFT);
-        buttonsBox.setPrefWidth(400); // Ensure consistent width for the button container
-    
-        // Add buttons
+
+        // ------------------------------
+        // 1) Conditionally create ComboBox if not DELAYED
+        // ------------------------------
+        final ComboBox<Status> statusComboBox;
+        if (task.getStatus() != Status.DELAYED) {
+            statusComboBox = new ComboBox<>();
+            statusComboBox.getItems().addAll(Status.values());
+            statusComboBox.setPromptText("Status");
+            
+            // Prevent the ComboBox from pushing buttons to shrink
+            statusComboBox.setPrefWidth(100);
+
+            // Update task status upon selection
+            statusComboBox.setOnAction(event -> {
+                Status selectedStatus = statusComboBox.getValue();
+                if (selectedStatus != null) {
+                    task.setStatus(selectedStatus);
+                    statusLabel.setText("Status: " + task.getStatus());
+
+                    // If status becomes DELAYED, remove the ComboBox
+                    if (selectedStatus == Status.DELAYED) {
+                        buttonsBox.getChildren().remove(statusComboBox);
+                    }
+                    // Optionally save tasks here
+                }
+            });
+        } else {
+            statusComboBox = null;
+        }
+
+        // ------------------------------
+        // 2) Create Buttons with minimum widths
+        // ------------------------------
         Button deleteButton = new Button("Delete");
+        deleteButton.setMinWidth(60);
         deleteButton.setOnAction(event -> {
             taskContainer.getChildren().remove(taskBox);
             tasks.remove(task);
+            // Optionally save tasks here
         });
-    
+
         Button modifyButton = new Button("Modify");
+        modifyButton.setMinWidth(60);
         modifyButton.setOnAction(event -> openAddTaskOverlay(task));
-    
+
         Button toggleStatusButton = new Button("Toggle Status");
+        toggleStatusButton.setMinWidth(90); // a bit wider for the text
         toggleStatusButton.setOnAction(event -> {
             if (task.getDeadline().isBefore(LocalDateTime.now())) {
                 task.setStatus(Status.DELAYED);
@@ -553,41 +622,56 @@ public class TaskController {
                     case OPEN -> task.setStatus(Status.IN_PROGRESS);
                     case IN_PROGRESS -> task.setStatus(Status.COMPLETED);
                     case COMPLETED -> task.setStatus(Status.IN_PROGRESS);
-                    case POSTPONED -> task.setStatus(Status.IN_PROGRESS);
-                    case DELAYED -> task.setStatus(Status.IN_PROGRESS);
+                    case POSTPONED, DELAYED -> task.setStatus(Status.IN_PROGRESS);
                 }
             }
             statusLabel.setText("Status: " + task.getStatus());
+
+            // If status becomes DELAYED, remove the ComboBox if it exists
+            if (task.getStatus() == Status.DELAYED && statusComboBox != null) {
+                buttonsBox.getChildren().remove(statusComboBox);
+            }
+            refreshTaskSummary();
+            // Optionally save tasks here
         });
-    
+
         Button notifyButton = new Button("Notify");
+        notifyButton.setMinWidth(60);
         notifyButton.setOnAction(event -> openAddNotificationOverlay(task));
-    
+
+        // ------------------------------
+        // 3) Add buttons to the HBox
+        // ------------------------------
         buttonsBox.getChildren().addAll(deleteButton, modifyButton, toggleStatusButton, notifyButton);
+
+        // If ComboBox exists (not DELAYED), add it last
+        if (statusComboBox != null) {
+            buttonsBox.getChildren().add(statusComboBox);
+        }
+
+        // Add the buttons box to the main task box
         taskBox.getChildren().add(buttonsBox);
-    
+
         // Overdue reminders
         Label overdueReminderLabel = new Label();
         overdueReminderLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
-    
+
         List<Reminder> overdueReminders = task.getReminders().stream()
-            .filter(reminder -> reminder.getReminderDate().isBefore(LocalDateTime.now()))
+            .filter(r -> r.getReminderDate().isBefore(LocalDateTime.now()))
             .collect(Collectors.toList());
-    
+
         if (!overdueReminders.isEmpty()) {
             String reminderDetails = overdueReminders.stream()
-                .map(reminder -> reminder.getType().toString())
+                .map(r -> r.getType().toString())
                 .collect(Collectors.joining(", "));
             overdueReminderLabel.setText("Overdue Reminders: " + reminderDetails);
         }
-    
-        // Add the overdue reminder label after buttons
+
         taskBox.getChildren().add(overdueReminderLabel);
-    
+
         return taskBox;
     }
-    
-    
+
 
     public void openAddNotificationOverlay(Task task) {
         currentTaskForReminder = task;

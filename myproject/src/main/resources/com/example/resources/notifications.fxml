@@ -1,16 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
 <?import javafx.geometry.Pos?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 
 <StackPane xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.example.frontend.NotificationsController"
            style="-fx-padding: 10;">
+
+    <!-- Main Content for Notifications Page -->
     <VBox alignment="CENTER" spacing="15">
         <Label text="Notifications Page" style="-fx-font-size: 18pt;" />
         <ListView fx:id="notificationsList" />
         <Button text="Back to Tasks" onAction="#goBackToTasks" />
     </VBox>
+
+    <!-- Overlay for modifying an existing notification -->
+    <StackPane fx:id="modifyNotificationOverlayPane"
+               visible="false"
+               style="-fx-background-color: rgba(0, 0, 0, 0.5);">
+        <VBox alignment="CENTER" spacing="15"
+              style="-fx-background-color: white; -fx-padding: 20; -fx-max-height: 80vh; -fx-max-width: 400;">
+            <Label text="Modify Notification" style="-fx-font-size: 14pt;" />
+
+            <!-- Choose new Reminder Type -->
+            <Label text="Reminder Type:" />
+            <ComboBox fx:id="modifyReminderTypeChoiceBox" />
+
+            <!-- Optionally pick a custom date (if Type is CUSTOM_DATE) -->
+            <Label text="Custom Date (if needed):" />
+            <DatePicker fx:id="modifyCustomReminderDatePicker" />
+
+            <!-- Error or status label -->
+            <Label fx:id="modifyErrorLabel" style="-fx-text-fill: red;" />
+
+            <!-- Buttons row -->
+            <HBox alignment="CENTER" spacing="10">
+                <Button text="Modify" onAction="#handleModifyNotificationFromOverlay" />
+                <Button text="Cancel" onAction="#closeModifyNotificationOverlay" />
+            </HBox>
+        </VBox>
+    </StackPane>
+
 </StackPane>

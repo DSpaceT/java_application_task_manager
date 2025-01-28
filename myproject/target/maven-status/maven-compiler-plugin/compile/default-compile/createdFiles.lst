@@ -14,7 +14,9 @@ com/example/frontend/NotificationsController.class
 com/example/backend/Priority.class
 com/example/backend/Categories.class
 com/example/backend/TasksSaver.class
+com/example/backend/TaskSummary.class
 com/example/backend/CategorySaver.class
 com/example/backend/TaskUtils.class
 com/example/backend/TaskLoader.class
 com/example/frontend/TaskController.class
+com/example/frontend/NotificationsController$1.class
