@@ -7,50 +7,54 @@
 <StackPane xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.example.frontend.TaskController"
-           style="-fx-padding: 10;">
-
+           style="-fx-padding: 10; -fx-background-color: linear-gradient(to bottom, #e8f5e9, #c8e6c9);">
 
     <!-- ========== MAIN LAYOUT ========== -->
-    <VBox spacing="10">
-            <!-- ================== Task Summary Section ================== -->
-        <HBox spacing="20" alignment="CENTER_LEFT">
-            <Label fx:id="lblTotalTasks" text="Total tasks: 0" />
-            <Label fx:id="lblCompletedTasks" text="Completed: 0" />
-            <Label fx:id="lblDelayedTasks" text="Delayed: 0" />
-            <Label fx:id="lblDue7Days" text="Due in 7 days: 0" />
+    <VBox spacing="15" style="-fx-padding: 20;">
+
+        <!-- ================== Task Summary Section ================== -->
+        <HBox spacing="20" alignment="CENTER_LEFT"
+              style="-fx-background-color: #a5d6a7; -fx-padding: 10; -fx-border-radius: 10; -fx-background-radius: 10;">
+            <Label fx:id="lblTotalTasks" text="Total tasks: 0" style="-fx-font-weight: bold; -fx-text-fill: #1b5e20;" />
+            <Label fx:id="lblCompletedTasks" text="Completed: 0" style="-fx-font-weight: bold; -fx-text-fill: #1b5e20;" />
+            <Label fx:id="lblDelayedTasks" text="Delayed: 0" style="-fx-font-weight: bold; -fx-text-fill: #b71c1c;" />
+            <Label fx:id="lblDue7Days" text="Due in 7 days: 0" style="-fx-font-weight: bold; -fx-text-fill: #ff8f00;" />
         </HBox>
 
         <!-- Top row: Filters and Navigation -->
-        <HBox spacing="10" alignment="CENTER_LEFT">
+        <HBox spacing="15" alignment="CENTER_LEFT">
             <!-- Filters -->
-            <Label text="Filter by Category:" />
-            <ChoiceBox fx:id="categoryChoiceBoxMain" />
-            <Label text="Filter by Priority:" />
-            <ChoiceBox fx:id="priorityChoiceBoxMain" />
-            <Label text="Filter by Title:" />
-            <TextField fx:id="titleFilterField" promptText="Enter title..." />
-            <Button text="Apply Filters" onAction="#handleFilters" />
+            <Label text="Filter by Category:" style="-fx-font-size: 12pt;" />
+            <ChoiceBox fx:id="categoryChoiceBoxMain" style="-fx-border-color: #a5d6a7;" />
+            <Label text="Filter by Priority:" style="-fx-font-size: 12pt;" />
+            <ChoiceBox fx:id="priorityChoiceBoxMain" style="-fx-border-color: #a5d6a7;" />
+            <Label text="Filter by Title:" style="-fx-font-size: 12pt;" />
+            <TextField fx:id="titleFilterField" promptText="Enter title..." style="-fx-border-color: #a5d6a7;" />
+            <Button text="Apply Filters" onAction="#handleFilters" style="-fx-background-color: #388e3c; -fx-text-fill: white; -fx-font-weight: bold;" />
 
             <!-- Navigation -->
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Notifications" onAction="#goToNotifications" />
+            <Button text="Notifications" onAction="#goToNotifications"
+                    style="-fx-background-color: #0288d1; -fx-text-fill: white; -fx-font-weight: bold;" />
 
-                        <!-- Notification Indicator -->
+            <!-- Notification Indicator -->
             <Label fx:id="notificationIndicator" text="!" 
-                style="-fx-text-fill: red; -fx-font-size: 18pt;" 
-                visible="false" />
-            <Button text="Manage Categories" onAction="#openManageCategoriesOverlay" />
+                   style="-fx-text-fill: red; -fx-font-size: 18pt;" 
+                   visible="false" />
+            <Button text="Manage Categories" onAction="#openManageCategoriesOverlay"
+                    style="-fx-background-color: #f57f17; -fx-text-fill: white; -fx-font-weight: bold;" />
         </HBox>
 
         <!-- ScrollPane for tasks -->
-        <ScrollPane fitToWidth="true">
+        <ScrollPane fitToWidth="true" style="-fx-border-color: #a5d6a7;">
             <VBox fx:id="taskContainer" spacing="10" style="-fx-padding: 10;">
                 <!-- Dynamically populated tasks go here -->
             </VBox>
         </ScrollPane>
 
         <!-- Button to open Add Task overlay -->
-        <Button text="Add Task" onAction="#openAddTaskOverlay" />
+        <Button text="Add Task" onAction="#openAddTaskOverlay"
+                style="-fx-background-color: #43a047; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 20;" />
     </VBox>
 
     <!-- ========== MANAGE CATEGORIES & PRIORITIES OVERLAY ========== -->
@@ -59,23 +63,26 @@
                style="-fx-background-color: rgba(0, 0, 0, 0.5);">
 
         <VBox alignment="CENTER" spacing="15"
-              style="-fx-background-color: white; -fx-padding: 20; -fx-max-height: 80vh; -fx-max-width: 500;">
+              style="-fx-background-color: white; -fx-padding: 30; -fx-max-height: 80vh; -fx-max-width: 500; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 10, 0.5, 0, 2);">
 
             <!-- Manage Categories Section -->
-            <Label text="Manage Categories" style="-fx-font-size: 14pt;" />
-            <ListView fx:id="categoriesListView" prefHeight="150" />
-            <TextField fx:id="newCategoryField" promptText="New Category Name" />
-            <Button text="Add Category" onAction="#handleAddCategory" />
+            <Label text="Manage Categories" style="-fx-font-size: 16pt; -fx-font-weight: bold; -fx-text-fill: #388e3c;" />
+            <ListView fx:id="categoriesListView" prefHeight="150" style="-fx-border-color: #c8e6c9;" />
+            <TextField fx:id="newCategoryField" promptText="New Category Name" style="-fx-border-color: #c8e6c9;" />
+            <Button text="Add Category" onAction="#handleAddCategory" 
+                    style="-fx-background-color: #388e3c; -fx-text-fill: white; -fx-font-weight: bold;" />
 
             <!-- Manage Priorities Section -->
-            <Label text="Manage Priorities" style="-fx-font-size: 14pt;" />
-            <ListView fx:id="prioritiesListView" prefHeight="150" />
-            <TextField fx:id="newpriorityField" promptText="New Priority Name" />
-            <Button text="Add Priority" onAction="#handleAddPriority" />
+            <Label text="Manage Priorities" style="-fx-font-size: 16pt; -fx-font-weight: bold; -fx-text-fill: #388e3c;" />
+            <ListView fx:id="prioritiesListView" prefHeight="150" style="-fx-border-color: #c8e6c9;" />
+            <TextField fx:id="newpriorityField" promptText="New Priority Name" style="-fx-border-color: #c8e6c9;" />
+            <Button text="Add Priority" onAction="#handleAddPriority"
+                    style="-fx-background-color: #388e3c; -fx-text-fill: white; -fx-font-weight: bold;" />
 
             <!-- Close Button -->
-            <HBox spacing="10" alignment="CENTER">
-                <Button text="Close" onAction="#closeManageCategoriesOverlay" />
+            <HBox spacing="15" alignment="CENTER">
+                <Button text="Close" onAction="#closeManageCategoriesOverlay"
+                        style="-fx-background-color: #d32f2f; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 20;" />
             </HBox>
         </VBox>
     </StackPane>
@@ -85,48 +92,59 @@
                visible="false"
                style="-fx-background-color: rgba(0, 0, 0, 0.5);">
 
-        <VBox alignment="CENTER" spacing="15"
-              style="-fx-background-color: white; -fx-padding: 20; -fx-max-height: 80vh; -fx-max-width: 500;">
+        <VBox alignment="CENTER" spacing="20"
+              style="-fx-background-color: white; -fx-padding: 30; -fx-max-height: 80vh; -fx-max-width: 500; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 10, 0.5, 0, 2);">
 
             <!-- Title for the overlay -->
-            <Label text="Add a New Task" style="-fx-font-size: 14pt;" />
+            <Label text="Add a New Task" style="-fx-font-size: 20pt; -fx-font-weight: bold; -fx-text-fill: #0288d1;" />
 
             <!-- Task Form Fields -->
-            <TextField fx:id="taskTitleField" promptText="Task Title" />
-            <TextArea fx:id="taskDescriptionField" promptText="Task Description" />
-            <DatePicker fx:id="taskDeadlinePicker" promptText="Deadline" />
+            <TextField fx:id="taskTitleField" promptText="Task Title" style="-fx-border-color: #c8e6c9;" />
+            <TextArea fx:id="taskDescriptionField"
+                    promptText="Task Description"
+                    style="-fx-border-color: #c8e6c9;"
+                    wrapText="true" />
 
-            <Label text="Task Priority:" />
-            <ComboBox fx:id="PriorityChoiceBox" />
+            <DatePicker fx:id="taskDeadlinePicker" promptText="Deadline" style="-fx-border-color: #c8e6c9;" />
 
-            <Label text="Task Category:" />
-            <ComboBox fx:id="categoryChoiceBox" />
+            <Label text="Task Priority:" style="-fx-font-size: 12pt; -fx-text-fill: #424242;" />
+            <ComboBox fx:id="PriorityChoiceBox" style="-fx-border-color: #c8e6c9;" />
+
+            <Label text="Task Category:" style="-fx-font-size: 12pt; -fx-text-fill: #424242;" />
+            <ComboBox fx:id="categoryChoiceBox" style="-fx-border-color: #c8e6c9;" />
 
             <!-- Buttons to add or cancel -->
-            <HBox spacing="10" alignment="CENTER">
-                <Button text="Add Task" onAction="#submitTaskForm" />
-                <Button text="Cancel" onAction="#closeOverlay" />
+            <HBox spacing="15" alignment="CENTER">
+                <Button text="Add Task" onAction="#submitTaskForm"
+                        style="-fx-background-color: #43a047; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 20;" />
+                <Button text="Cancel" onAction="#closeOverlay"
+                        style="-fx-background-color: #d32f2f; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 20;" />
             </HBox>
         </VBox>
     </StackPane>
 
-        <!-- ========== NOTIFICATION OVERLAY ========== -->
     <StackPane fx:id="notificationOverlayPane"
-            visible="false"
-            style="-fx-background-color: rgba(0, 0, 0, 0.5);">
+               visible="false"
+               style="-fx-background-color: rgba(0, 0, 0, 0.5);">
         <VBox alignment="CENTER" spacing="15"
-            style="-fx-background-color: white; -fx-padding: 20; -fx-max-height: 80vh; -fx-max-width: 500;">
-            <Label text="Add Reminder" style="-fx-font-size: 14pt;" />
-            
-            <Label text="Reminder Type:" />
-            <ComboBox fx:id="reminderTypeChoiceBox" />
-            
-            <Label text="Custom Date (if applicable):" />
-            <DatePicker fx:id="customReminderDatePicker" />
+              style="-fx-background-color: white; -fx-padding: 30; -fx-max-height: 80vh; -fx-max-width: 500; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 10, 0.5, 0, 2);">
 
-            <HBox spacing="10" alignment="CENTER">
-                <Button text="Add Reminder" onAction="#handleAddReminderFromOverlay" />
-                <Button text="Cancel" onAction="#closeNotificationOverlay" />
+            <Label text="Add Reminder" style="-fx-font-size: 16pt; -fx-font-weight: bold; -fx-text-fill: #0288d1;" />
+
+            <!-- Add this error label -->
+            <Label fx:id="addReminderErrorLabel" style="-fx-text-fill: red;" />
+
+            <Label text="Reminder Type:" style="-fx-font-size: 12pt; -fx-text-fill: #424242;" />
+            <ComboBox fx:id="reminderTypeChoiceBox" style="-fx-border-color: #c8e6c9;" />
+
+            <Label text="Custom Date (if applicable):" style="-fx-font-size: 12pt; -fx-text-fill: #424242;" />
+            <DatePicker fx:id="customReminderDatePicker" style="-fx-border-color: #c8e6c9;" />
+
+            <HBox spacing="15" alignment="CENTER">
+                <Button text="Add Reminder" onAction="#handleAddReminderFromOverlay"
+                        style="-fx-background-color: #43a047; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 20;" />
+                <Button text="Cancel" onAction="#closeNotificationOverlay"
+                        style="-fx-background-color: #d32f2f; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 20;" />
             </HBox>
         </VBox>
     </StackPane>

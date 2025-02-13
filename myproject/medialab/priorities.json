@@ -1,6 +1,8 @@
 [
     "DEFAULT",
     "ALL",
-    "fdsfsdaf",
-    "FUCK YOU"
+    "not_emergency",
+    "very_important",
+    "imminent",
+    "do_not_hurry"
 ]
