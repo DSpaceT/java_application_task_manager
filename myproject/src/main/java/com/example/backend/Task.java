@@ -31,7 +31,6 @@ public class Task {
         this.status = status;
     }
 
-    // Status methods
     public Status getStatus() {
         return status;
     }
@@ -39,13 +38,11 @@ public class Task {
     public void setStatus(Status status) {
         this.status = status;
 
-        // Automatically clear reminders if the task is marked as completed
         if (status == Status.COMPLETED) {
             clearReminders();
         }
     }
 
-    // Reminder management
     public List<Reminder> getReminders() {
         return reminders;
     }
@@ -65,7 +62,6 @@ public class Task {
         reminders.clear();
     }
 
-    // JavaFX properties
     public StringProperty titleProperty() {
         return title;
     }
@@ -90,7 +86,6 @@ public class Task {
         return category;
     }
 
-    // Getters and setters
     public String getTitle() {
         return title.get();
     }
@@ -130,7 +125,7 @@ public class Task {
     public void setCompleted(boolean completed) {
         this.completed.set(completed);
         if (completed) {
-            clearReminders(); // Automatically clear reminders when completed
+            clearReminders(); 
         }
     }
 
@@ -142,7 +137,7 @@ public class Task {
         this.category.set(category);
     }
 
-    // Additional functionality
+  
     public void markAsCompleted() {
         setCompleted(true);
     }
@@ -164,7 +159,7 @@ public class Task {
                 reminders);
     }
 
-    // Equality and hashCode
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;

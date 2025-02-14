@@ -3,9 +3,9 @@ package com.example.backend;
 import java.time.LocalDateTime;
 
 public class Reminder {
-    private final String taskTitle;         // Title of the associated task (still final if you don't want to change it)
-    private LocalDateTime reminderDate;     // The date/time of the reminder (no longer final)
-    private ReminderType type;              // Type of reminder (no longer final)
+    private final String taskTitle;      
+    private LocalDateTime reminderDate;   
+    private ReminderType type;            
 
     public Reminder(String taskTitle, LocalDateTime reminderDate, ReminderType type) {
         this.taskTitle = taskTitle;

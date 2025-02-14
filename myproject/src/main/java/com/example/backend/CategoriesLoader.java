@@ -12,12 +12,7 @@ import java.util.Scanner;
 
 public class CategoriesLoader {
 
-    /**
-     * Loads categories from a JSON file.
-     *
-     * @param filePath the path to the JSON file containing categories
-     * @return a list of category names
-     */
+
     public static List<String> loadCategoriesFromJSONFile(String filePath) {
         List<String> categories = new ArrayList<>();
         try (FileInputStream fileInputStream = new FileInputStream(new File(filePath))) {
@@ -35,19 +30,13 @@ public class CategoriesLoader {
         return categories;
     }
 
-    /**
-     * Parses a JSON string representing an array of categories.
-     *
-     * @param jsonContent the JSON string
-     * @return a list of category names
-     */
+
     private static List<String> parseCategoriesFromJSON(String jsonContent) {
         List<String> categories = new ArrayList<>();
         try {
-            // Convert the JSON string into a JSONArray
+
             JSONArray jsonArray = new JSONArray(jsonContent);
 
-            // Extract each element as a String
             for (int i = 0; i < jsonArray.length(); i++) {
                 categories.add(jsonArray.getString(i));
             }

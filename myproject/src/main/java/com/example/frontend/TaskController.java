@@ -1,6 +1,4 @@
 package com.example.frontend;
-
-import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -9,11 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -24,11 +20,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.Region;
 import javafx.stage.Stage;
-
 import com.example.backend.Task;
-import com.example.backend.TaskLoader;
 import com.example.backend.TaskSummary;
 import com.example.backend.TaskUtils;
 import com.example.backend.Priority;
@@ -36,40 +29,33 @@ import com.example.backend.Reminder;
 import com.example.backend.ReminderType;
 import com.example.backend.Categories;
 import com.example.backend.Status;
-
-import javafx.util.Callback;
 import javafx.util.Duration;
 
 public class TaskController {
 
-    // --------------------------- Main Tasks Section ---------------------------
+
     @FXML private VBox taskContainer;
 
-    // --------------------------- Add Task Overlay -----------------------------
     @FXML private StackPane overlayPane; 
     @FXML private TextField taskTitleField;
     @FXML private TextArea taskDescriptionField;
     @FXML private DatePicker taskDeadlinePicker;
     @FXML private ComboBox<Priority> PriorityChoiceBox;
 
-    // ComboBox used to pick a category in the "Add Task" form
     @FXML private ComboBox<Categories> categoryChoiceBox;
 
-    // --------------------------- Main Category Filter -------------------------
+
     @FXML private ChoiceBox<Categories> categoryChoiceBoxMain;
     @FXML private ChoiceBox<Priority> priorityChoiceBoxMain;
 
-    // ---------------------- Manage Categories Overlay -------------------------
     @FXML private StackPane manageCategoriesOverlayPane;
     @FXML private ListView<Categories> categoriesListView;
     @FXML private TextField newCategoryField;
 
-    // ---------------------- Manage Priorities Overlay -------------------------
-    @FXML private ListView<Priority> prioritiesListView;   // <--- must be Priority, not Categories
+    @FXML private ListView<Priority> prioritiesListView;  
     @FXML private TextField newpriorityField;
 
 
-    // If you have a VBox for managing categories in-place (legacy UI)
     @FXML private VBox manageCategoriesSection;
 
     @FXML private TextField titleFilterField;
@@ -81,7 +67,7 @@ public class TaskController {
     private Task currentTaskForReminder;
 
 
-    // // --------------------------- Data Structures ------------------------------
+
     // private Map<Categories, List<Task>> categorizedTasks = new HashMap<>();
     private static List<Task> tasks = new ArrayList<>();
 
@@ -94,10 +80,14 @@ public class TaskController {
     @FXML private Label lblCompletedTasks;
     @FXML private Label lblDelayedTasks;
     @FXML private Label lblDue7Days;
+
+
+    @FXML Categories selectedCategory;
+    @FXML Priority selectedPriority;
+    @FXML String titleFilter;
     @FXML
     private Label addReminderErrorLabel;
-    
-    // ============================= Initialization =============================
+
     @FXML
     private void initialize() {
         startReminderChecker();
@@ -130,14 +120,11 @@ public class TaskController {
             .flatMap(task -> task.getReminders().stream())
             .anyMatch(reminder -> reminder.getReminderDate().isBefore(LocalDateTime.now()));
     
-        // --- Instead of resetting everything to "All/ALL/null" ---
-        // Grab the *actual* current filters from the UI:
-        Categories currentCategory = categoryChoiceBoxMain.getValue();
-        Priority currentPriority = priorityChoiceBoxMain.getValue();
-        String currentSearchText = titleFilterField.getText();
-    
+
         // Now call updateTaskContainer with the *current* filter:
-        updateTaskContainer(currentCategory, currentPriority, currentSearchText);
+        updateTaskContainer(selectedCategory, selectedPriority, titleFilter);
+
+        // updateTaskContainer(Categories.valueOf("All"), Priority.valueOf("ALL"), "");
     
         // Update notification indicator
         if (hasDueReminder) {
@@ -166,7 +153,7 @@ public class TaskController {
     }
     
 
-    // ---------------------- Setup Category Filter (MAIN) ----------------------
+
     private void setupCategoryChoiceBoxMain() {
         categoryChoiceBoxMain.setItems(FXCollections.observableArrayList(Categories.values()));
         // Default to "All" by name
@@ -187,9 +174,9 @@ public class TaskController {
 
     @FXML
     private void handleFilters() {
-        Categories selectedCategory = categoryChoiceBoxMain.getValue();
-        Priority selectedPriority = priorityChoiceBoxMain.getValue();
-        String titleFilter = titleFilterField.getText().toLowerCase(); // Get title filter text
+        selectedCategory = categoryChoiceBoxMain.getValue();
+        selectedPriority = priorityChoiceBoxMain.getValue();
+        titleFilter = titleFilterField.getText().toLowerCase(); 
     
         System.out.println("Selected Filters - Category: " + selectedCategory + ", Priority: " + selectedPriority + ", Title: " + titleFilter);
     
@@ -209,21 +196,6 @@ public class TaskController {
         PriorityChoiceBox.setValue(Priority.valueOf("DEFAULT")); 
     }
 
-    // ---------------------- Load tasks from JSON ------------------------------
-    private void loadTasks() {
-        String filePath = "/home/dimitrios-georgoulopoulos/Desktop/java_project_v2/myproject/medialab/tasks.json";
-        System.out.println("Looking for tasks.json at: " + filePath);
-
-        File file = new File(filePath);
-        if (file.exists() && file.canRead()) {
-            System.out.println("File exists and is readable!");
-            tasks = TaskLoader.loadTasksFromJSONFile(filePath);
-
-            updateTaskContainer(Categories.valueOf("All"),Priority.valueOf("ALL"),null);
-        } else {
-            System.out.println("File does not exist or is not readable!");
-        }
-    }
 
     private void initCategoriesListView() {
         categoriesListView.setItems(
@@ -279,35 +251,31 @@ public class TaskController {
     }
     
     private void updateCategoryAndTasks(Categories oldCategory, String newCategoryName) {
-        // Step 1: Modify the category name
+
         try {
             Categories newCategory = Categories.modifyCategoryName(oldCategory.toString(), newCategoryName);
-    
-            // Step 2: Update tasks associated with the old category
+
             tasks = TaskUtils.updateTasksCategory(tasks, oldCategory, newCategory);
     
             System.out.println("Updated category: " + oldCategory + " to " + newCategoryName);
-    
-            // Step 3: Refresh the categoriesListView, excluding "All" and "Default"
+
             categoriesListView.setItems(
                 FXCollections.observableArrayList(Categories.values())
                     .filtered(c -> !c.equals(Categories.valueOf("All")) && !c.equals(Categories.valueOf("Default")))
             );
-    
-            // Step 4: Update the UI with the new category
+
             updateTaskContainer(Categories.valueOf("All"), Priority.valueOf("ALL"), "");
     
-            // Step 5: Update dropdowns for categories
             updateCategoryChoiceBoxes();
     
         } catch (IllegalArgumentException ex) {
             System.err.println("Error updating category: " + ex.getMessage());
-            // Optionally, show an error dialog to the user
+
         }
     }
     
     private void initPrioritiesListView() {
-        // Show all priorities except "DEFAULT" and "ALL"
+
         prioritiesListView.setItems(
             FXCollections.observableArrayList(Priority.values())
                 .filtered(p -> !p.equals(Priority.valueOf("DEFAULT")) && !p.equals(Priority.valueOf("ALL")))
@@ -324,7 +292,7 @@ public class TaskController {
                 cellContainer.setSpacing(10);
                 cellContainer.getChildren().addAll(priorityLabel, modifyField, modifyButton, removeButton);
     
-                // Modify button logic
+
                 modifyButton.setOnAction(e -> {
                     Priority priority = getItem();
                     if (priority != null) {
@@ -335,8 +303,7 @@ public class TaskController {
                         }
                     }
                 });
-    
-                // Remove button logic
+
                 removeButton.setOnAction(e -> {
                     Priority priority = getItem();
                     if (priority != null) {
@@ -363,32 +330,29 @@ public class TaskController {
     }
     private void updatePriorityAndTasks(Priority oldPriority, String newPriorityName) {
         try {
-            // Step 1: Modify the priority name
+
             Priority newPriority = Priority.addPriority(newPriorityName);
     
-            // Step 2: Update tasks associated with the old priority
+
             tasks = TaskUtils.updateTasksPriority(tasks, oldPriority, newPriority);
-    
-            // Step 3: Remove the old priority
+
             Priority.removePriority(oldPriority.toString());
     
             System.out.println("Updated priority: " + oldPriority + " to " + newPriorityName);
-    
-            // Step 4: Refresh the prioritiesListView
+
             prioritiesListView.setItems(
                 FXCollections.observableArrayList(Priority.values())
                     .filtered(p -> !p.equals(Priority.valueOf("DEFAULT")) && !p.equals(Priority.valueOf("ALL")))
             );
-            // Step 4: Update the UI with the new category
+
             updateTaskContainer(Categories.valueOf("All"), Priority.valueOf("ALL"), "");
 
 
-            // Step 5: Update dropdowns or other UI elements
             updatePriorityChoiceBoxes();
     
         } catch (IllegalArgumentException ex) {
             System.err.println("Error updating priority: " + ex.getMessage());
-            // Optionally, show an error dialog to the user
+
         }
     }
         
@@ -400,25 +364,20 @@ public class TaskController {
             return;
         }
 
-        // 1) Reassign all tasks having this priority to DEFAULT
         tasks = TaskUtils.setTasksToDefaultPriority(tasks, priority);
 
-        // 2) Remove the old priority from the internal map/enum
         boolean removed = Priority.removePriority(priority.toString());
         if (removed) {
             System.out.println("Removed priority from the internal list: " + priority);
         }
 
-        // 3) Refresh the prioritiesListView to exclude DEFAULT and ALL
         prioritiesListView.setItems(
             FXCollections.observableArrayList(Priority.values())
                 .filtered(p -> !p.equals(Priority.valueOf("DEFAULT")) && !p.equals(Priority.valueOf("ALL")))
         );
 
-        // 4) Update UI with default filters
         updateTaskContainer(Categories.valueOf("All"), Priority.valueOf("ALL"), null);
 
-        // 5) Update any priority dropdowns
         updatePriorityChoiceBoxes();
 
         System.out.println("All tasks that had priority " + priority 
@@ -430,22 +389,18 @@ public class TaskController {
         tasks = TaskUtils.excludeTasks(tasks, category, null);
 
 
-        // 1) Remove the category from the "fake enum" map:
         boolean removed = Categories.removeCategory(category.toString());
         if (removed) {
             System.out.println("Removed category from the internal list: " + category);
         }
 
-        // Refresh the categoriesListView, excluding "All"
         categoriesListView.setItems(
             FXCollections.observableArrayList(Categories.values())
                 .filtered(c -> !c.equals(Categories.valueOf("All")) && !c.equals(Categories.valueOf("Default")))
         );
 
-        // 3) Update the UI (default to show "All" tasks)
         updateTaskContainer(Categories.valueOf("All"), Priority.valueOf("ALL"), "");
 
-        // 4) Update the dropdowns
         updateCategoryChoiceBoxes();
     }
 
@@ -471,13 +426,7 @@ public class TaskController {
         }
     }
 
-    // private void updatePriorityChoiceBoxes() {
-    //     // Use the items in the prioritiesListView to populate the PriorityChoiceBox
-    //     ObservableList<Priority> filteredPriorities = prioritiesListView.getItems();
-    
-    //     PriorityChoiceBox.setItems(filteredPriorities);
-    //     PriorityChoiceBox.setValue(filteredPriorities.isEmpty() ? null : filteredPriorities.get(0));
-    // }
+
     private void updatePriorityChoiceBoxes() {
         priorityChoiceBoxMain.setItems(FXCollections.observableArrayList(Priority.values()));
         priorityChoiceBoxMain.setValue(Priority.valueOf("ALL"));
@@ -878,11 +827,6 @@ public class TaskController {
         currentTaskForReminder = null;
     }
     
-    private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
-        alert.showAndWait();
-    }
-    
     
    
     // Overloaded method: Open overlay for adding a new task
@@ -905,7 +849,7 @@ public class TaskController {
 
     // Overloaded method: Open overlay for modifying an existing task
     private void openAddTaskOverlay(Task task) {
-        // Pre-fill the overlay with the task's current details
+
         taskTitleField.setText(task.getTitle());
         taskDescriptionField.setText(task.getDescription());
         taskDeadlinePicker.setValue(task.getDeadline().toLocalDate());
@@ -1019,8 +963,6 @@ public class TaskController {
         return new ArrayList<>(tasks);
     }
 
-
-        // ---------------------- Expose Current Categories ----------------
     public List<Categories> getCurrentCategories() {
         // Retrieve all currently loaded categories from the static Categories class
         Categories[] categoryArray = Categories.values();
@@ -1030,7 +972,6 @@ public class TaskController {
     }
 
 
-    // ---------------------- Expose Current Categories ----------------
     public List<Priority> getCurrentPriorities() {
         // Retrieve all currently loaded categories from the static Categories class
         Priority[] prioritiesArray = Priority.values();
@@ -1046,10 +987,6 @@ public class TaskController {
     
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/resources/notifications.fxml"));
             Parent notificationsRoot = loader.load();
-    
-            // Remove or comment out the following line:
-            // NotificationsController notificationsController = loader.getController();
-            // notificationsController.setReminders(fetchAllReminders());
     
             Scene notificationsScene;
             if (!stage.isFullScreen()) {
@@ -1067,17 +1004,14 @@ public class TaskController {
     
     
 
-    /**
-     * Fetches all reminders from tasks (this method should collect reminders from all tasks).
-     */
-    private List<Reminder> fetchAllReminders() {
-        return tasks.stream()
-                    .flatMap(task -> task.getReminders().stream())
-                    .toList();
-    }
+    // /**
+    //  * Fetches all reminders from tasks (this method should collect reminders from all tasks).
+    //  */
+    // private List<Reminder> fetchAllReminders() {
+    //     return tasks.stream()
+    //                 .flatMap(task -> task.getReminders().stream())
+    //                 .toList();
+    // }
 
-    
-
-    
 
 }

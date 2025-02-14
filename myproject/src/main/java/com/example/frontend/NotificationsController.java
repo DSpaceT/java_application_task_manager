@@ -23,7 +23,6 @@ public class NotificationsController {
     @FXML
     private ListView<HBox> notificationsList;
 
-    // === New overlay controls for modifying a reminder ===
     @FXML
     private StackPane modifyNotificationOverlayPane;
     @FXML
@@ -31,19 +30,16 @@ public class NotificationsController {
     @FXML
     private DatePicker modifyCustomReminderDatePicker;
     @FXML
-    private Label modifyErrorLabel;  // optional, to show errors
+    private Label modifyErrorLabel; 
 
-    // Holds the current reminder being modified
     private Reminder currentReminderToModify;
 
     @FXML
     private void initialize() {
-        // Fetch reminders from the static tasks list in TaskController
         List<Reminder> reminders = TaskController.getTasks().stream()
                 .flatMap(task -> task.getReminders().stream())
                 .collect(Collectors.toList());
 
-        // Populate the notifications list with HBox items (Label + Buttons)
         if (reminders != null && !reminders.isEmpty()) {
             notificationsList.getItems().setAll(
                 reminders.stream()
@@ -56,9 +52,7 @@ public class NotificationsController {
         }
     }
 
-    /**
-     * Creates the HBox for each reminder, including "Modify" and "Remove" buttons.
-     */
+
     private HBox createNotificationItem(Reminder reminder) {
         Label reminderLabel = new Label(reminder.toString());
         Button modifyButton = new Button("Modify");
@@ -81,9 +75,6 @@ public class NotificationsController {
         return itemBox;
     }
 
-    /**
-     * Removes the given reminder from its associated Task in TaskController.
-     */
     private void removeReminder(Reminder reminder) {
         TaskController.getTasks().forEach(task ->
             task.getReminders().removeIf(r -> r.equals(reminder))
@@ -91,31 +82,23 @@ public class NotificationsController {
         System.out.println("Removed reminder: " + reminder);
     }
 
-    /**
-     * Opens the overlay to modify an existing reminder's details.
-     */
+
     private void openModifyNotificationOverlay(Reminder reminder) {
-        // Store the current reminder being modified
+
         currentReminderToModify = reminder;
 
-        // Set the overlay to visible
         modifyNotificationOverlayPane.setVisible(true);
         modifyNotificationOverlayPane.toFront();
 
-        // Populate the combo box with possible ReminderTypes
         modifyReminderTypeChoiceBox.setItems(FXCollections.observableArrayList(ReminderType.values()));
         modifyReminderTypeChoiceBox.setValue(reminder.getType()); // Default to existing type
 
-        // If the reminder has a custom date, you might want to detect it. 
-        // Otherwise, just clear for the user to pick if they want.
+
         modifyCustomReminderDatePicker.setValue(null);
         modifyErrorLabel.setText("");
     }
 
-    /**
-     * Called when the user clicks "Modify" in the overlay.
-     * Updates the reminder's type and/or date, then hides the overlay.
-     */
+
     @FXML
     private void handleModifyNotificationFromOverlay() {
         if (currentReminderToModify == null) {

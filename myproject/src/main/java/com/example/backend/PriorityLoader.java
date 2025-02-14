@@ -12,18 +12,13 @@ import java.util.Scanner;
 
 public class PriorityLoader {
 
-    /**
-     * Loads priorities from a JSON file.
-     *
-     * @param filePath the path to the JSON file containing priorities
-     * @return a list of priority names
-     */
+
     public static List<String> loadPrioritiesFromJSONFile(String filePath) {
         List<String> priorities = new ArrayList<>();
         try (FileInputStream fileInputStream = new FileInputStream(new File(filePath))) {
             // Read the FileInputStream into a String
             String jsonContent = new Scanner(fileInputStream, StandardCharsets.UTF_8)
-                    .useDelimiter("\\A") // Read the entire file
+                    .useDelimiter("\\A") 
                     .next();
 
             // Parse the JSON array and extract priority names
@@ -35,12 +30,6 @@ public class PriorityLoader {
         return priorities;
     }
 
-    /**
-     * Parses a JSON string representing an array of priorities.
-     *
-     * @param jsonContent the JSON string
-     * @return a list of priority names
-     */
     private static List<String> parsePrioritiesFromJSON(String jsonContent) {
         List<String> priorities = new ArrayList<>();
         try {
