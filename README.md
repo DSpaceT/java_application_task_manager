@@ -4,6 +4,7 @@ Java JDK 17 or higher installed on your system.
 Apache Maven installed.
 An active internet connection (for the first build to download dependencies).
 Installation
+
 1) clone the repository:
 git clone https://github.com/yourusername/myproject.git
 cd myproject
@@ -13,6 +14,7 @@ mvn clean install
 4) Run the application :
 mvn javafx:run
 Additional information for used libraries:
+
 The project uses JavaFX dependencies (javafx-controls and javafx-fxml version 23.0.1) managed by Maven.
 The main class for the application is configured as com.example.App in the pom.xml file.
 The project also uses the org.json:json library (version 20210307).
