@@ -2,14 +2,14 @@ INSTALLATION
 
 Prerequisites
 
-1)Java JDK 17 or higher installed on your system.
-2)Apache Maven installed.
-3)An active internet connection (for the first build to download dependencies).
+1) Java JDK 17 or higher installed on your system.
+2) Apache Maven installed.
+3) An active internet connection (for the first build to download dependencies).
 
 Installation
 
 1) clone the repository:
-git clone https://github.com/yourusername/myproject.git
+git clone https://github.com/DSpaceT/java_application_task_manager.git
 
 2) cd to the myproject directory of the cloned repository.
   
