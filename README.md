@@ -1,3 +1,24 @@
+INSTALLATION 
+Prerequisites
+Java JDK 17 or higher installed on your system.
+Apache Maven installed.
+An active internet connection (for the first build to download dependencies).
+Installation
+1) clone the repository:
+git clone https://github.com/yourusername/myproject.git
+cd myproject
+2) cd to the myproject directory of the cloned repository.
+3) Build the project :
+mvn clean install
+4) Run the application :
+mvn javafx:run
+Additional information for used libraries:
+The project uses JavaFX dependencies (javafx-controls and javafx-fxml version 23.0.1) managed by Maven.
+The main class for the application is configured as com.example.App in the pom.xml file.
+The project also uses the org.json:json library (version 20210307).
+
+
+TASK MANAGER DESCRIPTION
 The task manager is an application that allows users to plan future obligations and activities for organizational purposes. Specifically, the user can add tasks for which they can set a title, description, deadline, priority level, task category, and status.
 ![task_manager_layout](https://github.com/user-attachments/assets/b8b58f38-b0e4-41fb-a36a-10bf0fa5b8ce)
 The status of a task can be open, in_progress, delayed, completed, or postponed, with the delayed status being assigned automatically based on the task's deadline.
